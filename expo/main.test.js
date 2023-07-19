@@ -1,6 +1,7 @@
 import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import axios from "axios";
+import { act } from "react-test-renderer";
 import App from "./App";
 
 describe("Test", () => {
@@ -40,32 +41,73 @@ describe("Test", () => {
             id: 1,
             first_name: "Eldora",
             last_name: "Bode",
-            job_title: "Chief Intranet Strategist",
             address: "390 Kassulke Road",
+            job_title: "Chief Intranet Strategist",
             personal_details: {
               date_of_birth: "2023-09-08T00:04:26.014Z",
               IBAN: "CR79581244460872475027",
             },
           },
         ];
-      
-        axios.get = jest.fn().mockResolvedValueOnce({ data: mockData });
-      
-        const { getByText } = render(<App />);
-        const fetchButton = getByText("Fetch Users");
-      
+    
+        axios.get.mockResolvedValueOnce({ data: mockData });
+    
+        const { getByText, getByTestId } = render(<App fetchData={jest.fn()} />);
+        const fetchButton = getByTestId("fetch-button");
+    
         fireEvent.press(fetchButton);
-      
+    
         await waitFor(() => getByText("Employee List"));
         const employeeName = getByText("Name: Eldora Bode");
         const jobTitle = getByText("Job title: Chief Intranet Strategist");
         const address = getByText("Address: 390 Kassulke Road");
         const dob = getByText("DOB: 2023-09-08T00:04:26.014Z");
-      
+    
         expect(employeeName).toBeTruthy();
         expect(jobTitle).toBeTruthy();
         expect(address).toBeTruthy();
         expect(dob).toBeTruthy();
       });
+
+      it("returns an empty array for an empty input array", () => {
+        const data = [];
+        const filteredEmployees = data.filter(
+          (employee) => employee.last_name === "Bode" || employee.last_name === "Mueller"
+        );
+    
+        expect(filteredEmployees).toEqual([]);
+      });
+
+      it("returns an empty array if there are no employees with last_name 'Bode' or 'Mueller'", () => {
+        const data = [
+          { id: 1, last_name: "Smith" },
+          { id: 2, last_name: "Johnson" },
+          { id: 3, last_name: "Doe" },
+        ];
+    
+        const filteredEmployees = data.filter(
+          (employee) => employee.last_name === "Bode" || employee.last_name === "Mueller"
+        );
+    
+        expect(filteredEmployees).toEqual([]);
+      });
+
+      it("filters employees with last_name 'Bode'", () => {
+        const data = [
+          { id: 1, last_name: "Bode" },
+          { id: 2, last_name: "Mueller" },
+          { id: 3, last_name: "Doe" },
+        ];
+    
+        const filteredEmployees = data.filter(
+          (employee) => employee.last_name === "Bode" || employee.last_name === "Mueller"
+        );
+    
+        expect(filteredEmployees).toEqual([
+          { id: 1, last_name: "Bode" },
+          { id: 2, last_name: "Mueller" },
+        ]);
+      });
+      
 });
 
