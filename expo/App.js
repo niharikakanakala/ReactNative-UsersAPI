@@ -29,7 +29,7 @@ const App = () => {
   
     return (
       <View style={styles.container}>
-        <Button style={styles.button} title="Fetch Users" onPress={fetchData} testID="fetch-button" />
+         <Button style={styles.button} title="Fetch Users" onPress={fetchData} testID="fetch-button" />
         {isLoading ? (
           <Text style={styles.loadingText}>Loading...</Text>
         ) : error ? (
@@ -51,7 +51,7 @@ const App = () => {
                     DOB: {employee.personal_details.date_of_birth}
                   </Text>
                 </View>
-              ))}
+               ))}
             </ScrollView>
           </>
         )}
